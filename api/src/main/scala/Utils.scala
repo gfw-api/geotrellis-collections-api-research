@@ -10,8 +10,7 @@ import spray.json.DefaultJsonProtocol._
 
 trait Utils {
   val localCatalogPath =
-      new java.io.File(new java.io.File(".").getCanonicalFile,
-        "../ingest/land-cover-data/catalog").getAbsolutePath
+      new java.io.File("/tmp/land-cover-data/catalog").getAbsolutePath
   val localFileReader = FileCollectionLayerReader(localCatalogPath)
   val paNLCDLayerID = LayerId("nlcd-pennsylvania", 0)
 

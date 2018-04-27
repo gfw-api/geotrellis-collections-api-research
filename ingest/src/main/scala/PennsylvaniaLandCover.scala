@@ -20,13 +20,12 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 
 object LandCoverIngest {
-  val localGeoTiffPath =
-    new java.io.File(new java.io.File(".").getCanonicalFile,
-      "land-cover-data/geotiff/nlcd_pa.tif").getAbsolutePath
+
+  // make sure to hdfs dfs -put this into the file system at /tmp/ncld_pa.tif first
+  val localGeoTiffPath = new java.io.File("/tmp/nlcd_pa.tif").getAbsolutePath
 
   val localCatalogPath =
-    new java.io.File(new java.io.File(".").getCanonicalFile,
-      "land-cover-data/catalog").getAbsolutePath
+    new java.io.File("/tmp/land-cover-data/catalog").getAbsolutePath
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()

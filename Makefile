@@ -17,7 +17,9 @@ app-server:
 	docker-compose up -d app
 
 api-server:
-	bash -c "trap 'cd ..' EXIT; cd api; sbt ~reStart"
+	bash -c "trap 'cd ..' EXIT; cd api; spark-submit --name \"NLCD API\" \
+	--master yarn --deploy-mode cluster --driver-memory 4G \
+	target/scala-2.11/geotrellis_collections_api-assembly-1.0.jar"
 
 app-console:
 	docker-compose exec app /bin/bash
@@ -37,8 +39,11 @@ server: app-server api-server
 setup: build ingest
 
 download-tif:
-	curl -o ./ingest/land-cover-data/geotiff/nlcd_pa.tif \
-	https://azavea-research-public-data.s3.amazonaws.com/geotrellis/samples/nlcd_pa.tif
+	curl -o nlcd_pa.tif \
+	https://azavea-research-public-data.s3.amazonaws.com/geotrellis/samples/nlcd_pa.tif;
+	hdfs dfs -mkdir /tmp/land-cover-data;
+	hdfs dfs -mkdir /tmp/land-cover-data/catalog;
+	hdfs dfs -put nlcd_pa.tif /tmp/
 
 ingest-assembly:
 	bash -c "trap 'cd ..' EXIT; cd ingest; sbt assembly"
@@ -48,5 +53,5 @@ compile-ingest:
 
 ingest: ingest-assembly download-tif
 	bash -c "trap 'cd ..' EXIT; cd ingest; spark-submit --name \"NLCDPA Ingest\" \
-	--master \"local[*]\" --driver-memory 4G \
+	--master yarn --driver-memory 4G \
 	target/scala-2.11/geotrellis_collections_api_ingest-assembly-1.0.jar"
