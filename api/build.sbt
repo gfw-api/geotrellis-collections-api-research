@@ -31,4 +31,15 @@ libraryDependencies ++= {
   )
 }
 
+//CCH added
+mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+   {
+    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+    case PathList("reference.conf") => MergeStrategy.concat
+    case x => MergeStrategy.first
+   }
+}
+
+
 Revolver.settings
+
