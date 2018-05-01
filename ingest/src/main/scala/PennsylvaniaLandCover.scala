@@ -21,12 +21,6 @@ import org.apache.hadoop.fs.Path
 
 object LandCoverIngest {
 
-  // make sure to hdfs dfs -put this into the file system at /tmp/ncld_pa.tif first
-  val localGeoTiffPath = new java.io.File("/tmp/nlcd_pa.tif").getAbsolutePath
-
-  val localCatalogPath =
-    new java.io.File("/tmp/land-cover-data/catalog").getAbsolutePath
-
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
       .setIfMissing("spark.master", "local[*]")
@@ -36,6 +30,10 @@ object LandCoverIngest {
 
     implicit val sc = new SparkContext(conf)
     try {
+
+      val localGeoTiffPath = new java.io.File("/tmp/nlcd_pa.tif").getAbsolutePath
+      val outputPath: Path = "/tmp/land-cover-data/catalog"
+
       val geoTiffRDD =
         HadoopGeoTiffRDD.spatial(new Path(localGeoTiffPath))
 
@@ -51,7 +49,7 @@ object LandCoverIngest {
 
       val paLandCoverLayerID = LayerId("nlcd-pennsylvania", 0)
 
-      FileLayerWriter(localCatalogPath)
+      HadoopLayerWriter(outputPath)
         .write(paLandCoverLayerID, paLandCoverLayer, ZCurveKeyIndexMethod)
     } finally {
         sc.stop()

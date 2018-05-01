@@ -18,7 +18,8 @@ app-server:
 
 api-server:
 	bash -c "trap 'cd ..' EXIT; cd api; spark-submit --name \"NLCD API\" \
-	--master yarn --deploy-mode cluster --driver-memory 4G \
+	--master yarn-client --driver-memory 5G --driver-cores 4 --executor-cores 2 \
+        --executor-memory 5G --conf spark.dynamicAllocation.enabled=true \
 	target/scala-2.11/geotrellis_collections_api-assembly-1.0.jar"
 
 app-console:
