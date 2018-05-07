@@ -7,15 +7,18 @@ import geotrellis.vector._
 import geotrellis.vector.io._
 import geotrellis.spark._
 
+import geotrellis.spark.io.hadoop._
+import org.apache.spark.SparkContext
+
 trait Geoprocessing extends Utils {
-  def getPANLCDCount(aoi: GeoJsonData): ResponseData = {
+  def getPANLCDCount(aoi: GeoJsonData, layerReader: HadoopLayerReader, sc: SparkContext): ResponseData = {
     val areaOfInterest = createAOIFromInput(aoi.geometry)
-    val rasterLayer = fetchLocalCroppedPANLCDLayer(areaOfInterest)
+    val rasterLayer = fetchLocalCroppedPANLCDLayer(areaOfInterest, layerReader)
     ResponseData(rddCellCount(rasterLayer, areaOfInterest))
   }
 
   private def rddCellCount(
-    rasterLayer: TileLayerCollection[SpatialKey],
+    rasterLayer: TileLayerRDD[SpatialKey],
     areaOfInterest: MultiPolygon
   ): Map[String, Int] = {
     val init = () => new LongAdder

@@ -13,23 +13,19 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.serializer.KryoSerializer
 
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import geotrellis.spark.io.hadoop._
 
 trait Utils {
 
-    val conf = new SparkConf()
-      .setAppName("Analyze PA NLCD Tif")
-      .set("spark.serializer", classOf[KryoSerializer].getName)
-
-    implicit val sc = new SparkContext(conf)
-
-  val outputPath: Path = "/tmp/land-cover-data/catalog"
-  val reader = HadoopCollectionLayerReader(outputPath)
   val paNLCDLayerID = LayerId("nlcd-pennsylvania", 0)
 
   def fetchLocalCroppedPANLCDLayer(
-    shape: MultiPolygon
-  ): TileLayerCollection[SpatialKey] =
-    reader
+    shape: MultiPolygon,
+    layerReader: HadoopLayerReader
+  ): TileLayerRDD[SpatialKey] =
+    layerReader
       .query[SpatialKey, Tile, TileLayerMetadata[SpatialKey]](paNLCDLayerID)
       .where(Intersects(shape))
       .result
