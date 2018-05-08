@@ -1,4 +1,3 @@
-import geotrellis.proj4.{CRS, ConusAlbers, LatLng}
 import geotrellis.raster._
 import geotrellis.spark._
 import geotrellis.spark.io._
@@ -19,7 +18,7 @@ import geotrellis.spark.io.hadoop._
 
 trait Utils {
 
-  val paNLCDLayerID = LayerId("nlcd-pennsylvania", 0)
+  val paNLCDLayerID = LayerId("glad", 0)
 
   def fetchLocalCroppedPANLCDLayer(
     shape: MultiPolygon,
@@ -34,7 +33,7 @@ trait Utils {
 
   def parseGeometry(geoJson: String): MultiPolygon = {
     geoJson.parseJson.convertTo[Geometry] match {
-      case p: Polygon => MultiPolygon(p.reproject(LatLng, ConusAlbers))
+      case p: Polygon => MultiPolygon(p)
       case _ => throw new Exception("Invalid shape")
     }
   }

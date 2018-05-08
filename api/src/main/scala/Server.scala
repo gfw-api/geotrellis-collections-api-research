@@ -35,7 +35,7 @@ object Server extends HttpApp with App with Geoprocessing {
   implicit val sc = new SparkContext(conf)
 
   // source: https://github.com/geotrellis/geotrellis-landsat-emr-demo/blob/master/server/src/main/scala/demo/Main.scala#L47
-  val path = new org.apache.hadoop.fs.Path("/tmp/land-cover-data/catalog")
+  val path = new org.apache.hadoop.fs.Path("/data/glad/tiles")
   val attributeStore = HadoopAttributeStore(path)
   val layerReader = HadoopLayerReader(attributeStore)
 
@@ -52,7 +52,7 @@ object Server extends HttpApp with App with Geoprocessing {
         }
       } ~
       post {
-        path("panlcdcount") {
+        path("glad-alerts") {
           entity(as[GeoJsonData]) { shape =>
             complete {
               Future {

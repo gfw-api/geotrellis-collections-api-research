@@ -1,16 +1,12 @@
-# geotrellis-collections-api-research
+# geotrellis-glad-analysis
 
-[![Build Status](https://travis-ci.org/azavea/geotrellis-collections-api-research.svg?branch=master)](https://travis-ci.org/azavea/geotrellis-collections-api-research)
 
-A research project to set up and use GeoTrellis as a REST service.
-
-![current demo](demo.gif)
+A test to see if geotrellis can execute large user drawn AOIs against the GLAD alerts data.
 
 ### Requirements
 
 * Make
 * curl
-* [Docker](https://store.docker.com/search?offering=community&type=edition)
 * [java](http://openjdk.java.net/)
 * [sbt](http://www.scala-sbt.org/download.html)
 * [Spark 2.x](https://spark.apache.org/downloads.html)
@@ -21,7 +17,7 @@ To ingest the geotiff data used in the app, you'll also need to ensure that you'
 
 #### Setup
 
-Clone the project, make sure that Docker's running, then run:
+Clone the project and run:
 
 ```sh
 make
@@ -29,45 +25,28 @@ make
 
 This will
 
-- build the app client
-- compile the API service
-- [download a geotiff representing 1992 NLCD values for Pennsylvania](http://www.pasda.psu.edu/uci/DataSummary.aspx?dataset=339)
+- compile the API
+- [download a 1x1 degree geotiff of GLAD data from the western Brazil](http://s3.amazonaws.com/gfw2-data/alerts-tsv/temp/example-glad-dataset/clip.tif)
+- TIF extent is [here](http://geojson.io/#data=data:application/json,%7B%22type%22%3A%22Feature%22%2C%22properties%22%3A%7B%7D%2C%22geometry%22%3A%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-60%2C-13%5D%2C%5B-59%2C-13%5D%2C%5B-59%2C-12%5D%2C%5B-60%2C-12%5D%2C%5B-60%2C-13%5D%5D%5D%7D%7D)
 - ingest the geotiff as an RDD for GeoTrellis
 
-#### Server
-
-To start the app & API servers, run:
-
+Now run the API:
 ```
 make server
 ```
 
-This will start servers to run the app on port `9555` and the API on port `7000`.
+Then pass a request to localhost:7000/glad-alerts with a payload in this format to test:
+```
+{"geometry":"{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-60,-13],[-59,-13],[-59,-12],[-60,-12],[-60,-13]]]}}"}
+```
 
-### Ports
-
-| Port | Service |
-| --- | --- |
-| [9555](http://localhost:9555) | Webpack dev server |
-| [7000](http://localhost:7000) | GeoTrellis API |
-
-### API Endpoints
-
-Each of these API endpoints accepts a polygon geometry object posted from the client:
-
-| Path | Service |
-| --- | --- |
-| `/panlcdcount` | Returns NLCD cell counts arranged by type for AOI |
 
 ### Make rules
 
 | Rule | Description |
 | --- | --- |
-| `make build` | Install app container npm dependencies |
-| `make compile` | Compile app & api for CI |
-| `make app-console` | Log into app container shell |
+| `make compile` | Compile api for CI |
 | `make api-console` | Log into API with `./sbt console` |
-| `make restart` | Start API with `./sbt ~reStart` |
-| `make server` | Start app container & API service |
-| `make download-tif` | Download a geotiff of 1992 NLCD data for Pennsylvania |
-| `make ingest` | Ingest Pennsylvania NLCD GeoTiff into GeoTrellis RDD |
+| `make server` | Start API service |
+| `make download-tif` | Download the 1x1 degree geotiff of GLAD in Brazil
+| `make ingest` | Load the GLAD geotiff into a GeoTrellis RDD |
