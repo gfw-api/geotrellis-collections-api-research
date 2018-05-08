@@ -1,10 +1,5 @@
-import java.util.concurrent.atomic.{LongAdder}
-import collection.concurrent.TrieMap
-
 import geotrellis.raster._
-import geotrellis.raster.rasterize._
 import geotrellis.vector._
-import geotrellis.vector.io._
 import geotrellis.spark._
 
 import geotrellis.spark.io.hadoop._
@@ -21,26 +16,16 @@ trait Geoprocessing extends Utils {
     rasterLayer: TileLayerRDD[SpatialKey],
     areaOfInterest: MultiPolygon
   ): Map[String, Int] = {
-    val init = () => new LongAdder
-    val update = (_: LongAdder).increment()
 
-    val metadata = rasterLayer.metadata
-    val pixelCounts: TrieMap[Int, LongAdder] = TrieMap.empty
+  var pixelCounts = Map[String, Int]()
 
-    rasterLayer.foreach({ case (key: SpatialKey, tile: Tile) =>
-      val extent = metadata.mapTransform(key)
-      val re = RasterExtent(extent, metadata.layout.tileCols,
-        metadata.layout.tileRows)
+  val hist = rasterLayer.polygonalHistogram(areaOfInterest)
+                        .foreach({ case (k: Int, v: Long)  =>
+                        //println(k, v)
+                        pixelCounts += (k.toString -> v.toInt)
+             })
 
-      Rasterizer.foreachCellByMultiPolygon(areaOfInterest, re) { case (col, row) =>
-        val pixelValue: Int = tile.get(col, row).toInt
-        val acc = pixelCounts.getOrElseUpdate(pixelValue, init())
-        update(acc)
-      }
-    })
+  pixelCounts.toMap
 
-    pixelCounts
-      .map { case (k, v) => k.toString -> v.sum.toInt }
-      .toMap
   }
 }
