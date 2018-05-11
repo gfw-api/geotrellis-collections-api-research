@@ -1,4 +1,3 @@
-import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
@@ -8,10 +7,8 @@ import geotrellis.vector.io._
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.io.index._
-import geotrellis.spark.io.file._
 import geotrellis.spark.io.hadoop._
 import geotrellis.spark.io.kryo.KryoRegistrator
-import geotrellis.spark.io.s3._
 import geotrellis.spark.tiling._
 import org.apache.spark._
 import org.apache.spark.serializer.KryoSerializer
@@ -31,7 +28,7 @@ object LandCoverIngest {
     implicit val sc = new SparkContext(conf)
     try {
 
-      val localGeoTiffPath = new java.io.File("/data/clip.tif").getAbsolutePath
+      val localGeoTiffPath = new java.io.File("/data/nsa_all_years.tif").getAbsolutePath
       val outputPath: Path = "/data/glad/tiles"
 
       val geoTiffRDD =
